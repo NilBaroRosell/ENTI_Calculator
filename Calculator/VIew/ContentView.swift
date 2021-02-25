@@ -30,7 +30,7 @@ struct ContentView: View {
                         .frame(width: 270, height: 100, alignment: .trailing)
                     VStack {
                         HStack {
-                            ActionButton(label: "AC") { self.viewModel.resetOperands() }
+                            ActionButton(label: self.viewModel.buttonText) { self.viewModel.resetOperands() }
                             ActionButton(label: "⁺/₋") { self.viewModel.perform(operation: .swipeSign)}
                             ActionButton(label: "%") { self.viewModel.perform(operation: .percentage)}
                             OperationButton(label: "÷") { self.viewModel.perform(operation: .division)}

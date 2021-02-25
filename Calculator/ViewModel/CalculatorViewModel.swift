@@ -29,6 +29,7 @@ class CalculatorViewModel: CalculatorViewModelProtocol,
                            ObservableObject {
     
     @Published var display: String = "0"
+    @Published var buttonText: String = "AC"
 
     private var operation: Calculation = Calculation(firstOperator: 0,
                                                      secondOperator: 0,
@@ -36,6 +37,7 @@ class CalculatorViewModel: CalculatorViewModelProtocol,
     private var operationFinished: Bool = false
     
     public func addDigit(_ digit: String) {
+        self.buttonText = "C"
         if self.operation.operation != .none && self.operation.secondOperator == nil {
             self.operation.secondOperator = 0
             self.display = digit
@@ -50,16 +52,23 @@ class CalculatorViewModel: CalculatorViewModelProtocol,
             return
         }
         
-        self.display += digit
+        self.display += digit        
     }
     
     public func resetOperands() {
-        self.operation.reset()
+        if self.buttonText == "AC"
+        {
+            self.operation.reset()
+        }
+        else if self.buttonText == "C"
+        {
+            self.buttonText = "AC"
+        }
         self.display = "0"
     }
     
     public func perform(operation: CalculatorOperation) {
-        guard let value = Int(display) else { return }
+        guard let value = Double(display) else { return }
         
         switch operation {
         case .swipeSign:
@@ -67,7 +76,7 @@ class CalculatorViewModel: CalculatorViewModelProtocol,
         case .equal:
             self.operation.secondOperator = value
             guard let result = calculateResult(for: self.operation) else { return }
-            self.display = String(result)
+            self.display = String(format: "%0.2f", result)
             self.operation.reset()
             self.operation.firstOperator = result
             self.operationFinished = true
@@ -80,7 +89,7 @@ class CalculatorViewModel: CalculatorViewModelProtocol,
         self.display = "0"
     }
     
-    func calculateResult(for values: Calculation) -> Int? {
+    func calculateResult(for values: Calculation) -> Double? {
         guard let secondOperator = values.secondOperator else { return nil }
         switch values.operation {
         case .addition:
@@ -95,7 +104,7 @@ class CalculatorViewModel: CalculatorViewModelProtocol,
             let base = Double(secondOperator)
             let percentage = Double(operation.firstOperator) / 100
             let result = base * percentage
-            return Int(result)
+            return result
         default:
             return nil
         }
