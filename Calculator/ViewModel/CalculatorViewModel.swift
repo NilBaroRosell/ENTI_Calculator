@@ -52,7 +52,7 @@ class CalculatorViewModel: CalculatorViewModelProtocol,
             return
         }
         
-        self.display += digit        
+        self.display += digit
     }
     
     public func resetOperands() {
@@ -68,15 +68,24 @@ class CalculatorViewModel: CalculatorViewModelProtocol,
     }
     
     public func perform(operation: CalculatorOperation) {
-        guard let value = Double(display) else { return }
-        
+        var aux = self.display.replacingOccurrences(of: ",", with: ".")
+        guard let value = Double(aux) else { return }
         switch operation {
         case .swipeSign:
-            self.display = String(-value)
+            aux = String(-value)
+            self.display = aux.replacingOccurrences(of: ".", with: ",")
         case .equal:
             self.operation.secondOperator = value
             guard let result = calculateResult(for: self.operation) else { return }
-            self.display = String(format: "%0.2f", result)
+            if result.truncatingRemainder(dividingBy: 1) != 0
+            {
+                aux = String(format: "%0.2f", result)
+                self.display = aux.replacingOccurrences(of: ".", with: ",")
+            }
+            else
+            {
+                self.display = String(format: "%1.f", result)
+            }
             self.operation.reset()
             self.operation.firstOperator = result
             self.operationFinished = true
@@ -85,7 +94,6 @@ class CalculatorViewModel: CalculatorViewModelProtocol,
             self.operation.firstOperator = value
             self.operation.operation = operation
         }
-        
         self.display = "0"
     }
     
